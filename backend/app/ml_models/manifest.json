@@ -1,0 +1,41 @@
+{
+  "weeks": [
+    0,
+    3,
+    6,
+    9
+  ],
+  "barriers": [
+    "academic",
+    "time",
+    "material_digital",
+    "integration_motivation"
+  ],
+  "threshold": 0.5,
+  "models": {
+    "0": {
+      "file": "week00.joblib",
+      "features": 42,
+      "risk_high_cutoff": 0.718
+    },
+    "3": {
+      "file": "week03.joblib",
+      "features": 65,
+      "risk_high_cutoff": 0.7398
+    },
+    "6": {
+      "file": "week06.joblib",
+      "features": 67,
+      "risk_high_cutoff": 0.7772
+    },
+    "9": {
+      "file": "week09.joblib",
+      "features": 67,
+      "risk_high_cutoff": 0.815
+    }
+  },
+  "trained_on": {
+    "students": 5000,
+    "source": "ScholarSim (sintético)"
+  }
+}

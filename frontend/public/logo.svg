@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="kuskaGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6366f1" />
+      <stop offset="1" stop-color="#4338ca" />
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#kuskaGrad)" />
+  <polygon points="32,15 51,24 32,33 13,24" fill="#fff" />
+  <path d="M21 28 L21 36 C21 43 43 43 43 36 L43 28 Z" fill="#fff" />
+  <path d="M46 23 L46 31" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+  <circle cx="46" cy="34" r="3" fill="#fff" />
+</svg>

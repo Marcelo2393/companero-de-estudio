@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual de modelos · Copilot Becario</title>
+<style>
+:root{--ink:#17212b;--muted:#536273;--brand:#136f63;--soft:#e8f3f0;--line:#d9e1e7;--accent:#f3b562}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,sans-serif;background:#f7f9fa}
+header{background:linear-gradient(135deg,#123b4a,#136f63);color:white;padding:52px max(24px,calc((100% - 1100px)/2)) 44px}header p{max-width:760px;color:#d9f0eb}
+main{max-width:1100px;margin:28px auto;padding:0 24px}section{background:white;border:1px solid var(--line);border-radius:14px;padding:26px;margin:20px 0;box-shadow:0 4px 16px #16324d0b}
+h1{font-size:clamp(2rem,4vw,3.4rem);line-height:1.05;margin:0 0 12px}h2{color:var(--brand);margin-top:0}h3{margin-bottom:6px}a{color:var(--brand);font-weight:650}code{background:#eef2f4;padding:2px 5px;border-radius:4px}pre{overflow:auto;background:#15212b;color:#ecf5f3;padding:16px;border-radius:9px}
+table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:var(--soft)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}.card{border:1px solid var(--line);border-radius:10px;padding:15px}.tag{display:inline-block;background:#fff1d9;color:#80520c;border-radius:99px;padding:2px 9px;font-size:.82rem}.note{border-left:4px solid var(--accent);padding:10px 14px;background:#fff9ef}.small{color:var(--muted);font-size:.93rem}footer{max-width:1100px;margin:30px auto;padding:0 24px 50px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header><h1>Manual de modelos<br>Copilot Becario</h1><p>Guía de descarga, inputs, predicción, intervención y replanificación adaptativa. El paquete actual está entrenado con ScholarSim sintético y está listo para integrarse en una API o prototipo.</p></header>
+<main>
+<section><h2>1. Paquete descargable</h2><p>Descarga estos archivos juntos, manteniendo la estructura de carpetas:</p><ul>
+<li><a href="../models/manifest.json" download>manifest.json</a>: semanas, barreras, umbral y metadatos.</li>
+<li><a href="../models/week00.joblib" download>week00.joblib</a>: solo cuestionario inicial.</li>
+<li><a href="../models/week03.joblib" download>week03.joblib</a>: corte de semana 3.</li>
+<li><a href="../models/week06.joblib" download>week06.joblib</a>: corte de semana 6.</li>
+<li><a href="../models/week09.joblib" download>week09.joblib</a>: corte de semana 9.</li>
+<li><a href="../engine/models.py" download>engine/models.py</a>: cargador, predicción y entrenamiento.</li>
+<li><a href="../engine/schedule.py" download>engine/schedule.py</a>: planificador greedy y CP-SAT.</li>
+</ul><div class="note"><b>Compatibilidad:</b> los <code>.joblib</code> se cargan con el entorno del proyecto (<code>uv run</code>) y sus dependencias declaradas en <code>pyproject.toml</code>. Son modelos sintéticos; al pasar a producción hay que reentrenar con etiquetas validadas.</div></section>
+<section><h2>2. Qué hace cada modelo</h2><table><tr><th>Modelo</th><th>Entrada</th><th>Salida</th><th>Uso</th></tr>
+<tr><td><b>Macroperfiles</b></td><td>Cuestionario y trayectoria hasta la semana de corte.</td><td>Probabilidad de cada barrera, señales explicativas e intervención.</td><td>Personalizar apoyo; pueden coexistir varias barreras.</td></tr>
+<tr><td><b>Riesgo de desvinculación</b></td><td>Las mismas variables de corte.</td><td>Probabilidad y nivel <code>normal/high</code>.</td><td>Priorizar seguimiento humano.</td></tr>
+<tr><td><b>Planificador CP-SAT</b></td><td>Objetivos, disponibilidad, ocupaciones, sesiones fijadas y plan anterior.</td><td>Sesiones, horas cubiertas, faltantes y cambios.</td><td>Construir o actualizar el plan semanal.</td></tr>
+<tr><td><b>Mastery / objetivos / features</b></td><td>Eventos académicos y check-ins.</td><td>Brechas, prioridades y variables reutilizables.</td><td>Alimentar intervenciones y planificación.</td></tr></table></section>
+<section><h2>3. Inputs mínimos que debe capturar la aplicación</h2><div class="grid"><div class="card"><h3>Iniciales</h3><p>ID, carrera/cursos, diagnóstico, notas previas, temas difíciles, disponibilidad, trabajo, cuidados, conexión/dispositivo, apoyo y disposición a pedir ayuda.</p></div><div class="card"><h3>Check-in semanal</h3><p>Avance por curso, asistencia, horas disponibles reales, horas trabajadas/cuidados, conexión, carga percibida, bloqueo y motivo declarado.</p></div><div class="card"><h3>Planificación</h3><p>Horarios de clase, trabajo, cuidados, traslados, exámenes, horas objetivo, competencias a reforzar, sesiones fijadas y preferencias.</p></div><div class="card"><h3>Contexto de apoyo</h3><p>Campus/sede, tutor disponible, servicios, modalidad, canal preferido, urgencia, consentimiento y fecha de última actualización.</p></div></div><p class="small">Regla práctica: si un dato cambia el plan o la intervención, debe guardar valor, fecha, fuente y nivel de confianza.</p></section>
+<section><h2>4. Cinco macroperfiles de becarios</h2><table><tr><th>Perfil</th><th>Señales</th><th>Intervención principal</th></tr>
+<tr><td><span class="tag">1</span> Trayectoria estable</td><td>Avance sostenido, disponibilidad suficiente y ninguna barrera sobre el umbral.</td><td>Seguimiento ligero y planificación.</td></tr>
+<tr><td><span class="tag">2</span> Barreras académicas</td><td>Brechas, cursos desaprobados, notas bajas o temas difíciles.</td><td>Refuerzo por competencias y tutorías.</td></tr>
+<tr><td><span class="tag">3</span> Barreras de tiempo</td><td>Trabajo, cuidados, traslados, caída de horas disponibles o sobrecarga.</td><td>Optimización del calendario y recuperación gradual.</td></tr>
+<tr><td><span class="tag">4</span> Barreras materiales y digitales</td><td>Conectividad, dispositivo, materiales, pago/recursos o acceso físico.</td><td>Recursos offline, préstamo y derivación a apoyos.</td></tr>
+<tr><td><span class="tag">5</span> Barreras de integración y motivación</td><td>Adaptación difícil, poco apoyo, duda de continuar o baja disposición a pedir ayuda.</td><td>Orientación, acompañamiento humano y comunidad.</td></tr></table><p>Los modelos descargados estiman cuatro barreras y clasifican como <b>estable</b> cuando ninguna supera el umbral de 0,5. Por eso los cinco macroperfiles están cubiertos sin convertirlos en etiquetas excluyentes.</p></section>
+<section><h2>5. Diez perfiles de personas de la universidad que pueden apoyar</h2><div class="grid">
+<div class="card"><b>1. Tutor/a académico/a</b><br>Revisa brechas y acompaña cursos.</div><div class="card"><b>2. Mentor/a de pares</b><br>Apoya integración y hábitos.</div><div class="card"><b>3. Coordinador/a de carrera</b><br>Destraba decisiones curriculares.</div><div class="card"><b>4. Orientador/a psicológico/a</b><br>Contención y derivación especializada.</div><div class="card"><b>5. Trabajador/a social</b><br>Evalúa necesidades materiales y becas.</div><div class="card"><b>6. Bibliotecario/a</b><br>Acceso a materiales y espacios.</div><div class="card"><b>7. Soporte TI</b><br>Conectividad, plataforma y dispositivos.</div><div class="card"><b>8. Bienestar estudiantil</b><br>Servicios, alimentación y emergencias.</div><div class="card"><b>9. Coordinador/a de inclusión</b><br>Ajustes razonables y accesibilidad.</div><div class="card"><b>10. Enlace de prácticas/empleabilidad</b><br>Compatibiliza trabajo, práctica y estudio.</div>
+</div><p class="small">La asignación debe considerar disponibilidad, especialidad, carga máxima, consentimiento del becario, canal y fecha de seguimiento. El sistema recomienda; la persona responsable confirma.</p></section>
+<section><h2>6. Replanificación ante externalidades</h2><p>El plan semanal puede actualizarse sin rehacer todo desde cero. Registrar la externalidad, recalcular la capacidad y enviar el plan anterior al solver:</p><pre><code>from engine.schedule import cpsat_plan, busy_blocks
+
+busy = busy_blocks(profile, schedules, extra=blocked_blocks)
+nuevo = cpsat_plan(
+    week=semana_actual,
+    targets=targets_actualizados,
+    busy=busy,
+    capacity_hours=horas_disponibles,
+    previous=plan_anterior.sessions,
+    pinned=sesiones_fijadas,
+)
+# nuevo.to_dict() entrega sesiones, faltantes y cantidad de cambios</code></pre><p>El CP-SAT respeta sesiones fijadas, evita horarios ocupados, prioriza objetivos y minimiza cambios del plan anterior. Si no alcanza la capacidad, conserva <code>shortfall</code> para decidir una recuperación.</p><h3>Semana perdida: recuperación moderada</h3><p>Si se pierde la semana 3, la próxima semana se suma una fracción del faltante, no todo de golpe: <code>horas_recuperación = min(25% del faltante, 1 hora)</code>, siempre respetando el máximo diario de 4 horas y las restricciones del becario. La prioridad se reparte entre cursos y el resto queda como pendiente visible.</p></section>
+<section><h2>7. Comandos de referencia</h2><pre><code>uv run python -m engine.models train
+uv run python -m engine.models predict b-00004 --week 6
+uv run pytest -q</code></pre><p>Para una API, envolver <code>predict</code> en un endpoint que reciba <code>student_id</code> y <code>week</code>; para replanificar, recibir disponibilidad, objetivos, externalidades y sesiones fijadas.</p></section>
+<section><h2>8. Límites y uso responsable</h2><ul><li>Los resultados actuales son de un simulador y pueden ser optimistas.</li><li>Una probabilidad no es un diagnóstico ni debe decidir sola una sanción, beca o retiro.</li><li>Los motivos declarados y la validación de tutores deben alimentar las etiquetas reales.</li><li>Guardar solo datos necesarios, con consentimiento, control de acceso y trazabilidad.</li><li>Revisar sesgos por carrera, sede, discapacidad, trabajo y conectividad antes de producción.</li></ul></section>
+<section><h2>Simulación semanal</h2><p><code>engine/simulation.py</code> permite recorrer semanas sin NLP ni datasets: cada externalidad es una opción cerrada. En cada semana devuelve macroperfiles activos, horas disponibles y perdidas, recuperación, riesgo, alerta, intervención, perfiles de apoyo y acción del planificador.</p><pre><code>from engine.simulation import simulate; recorrido = simulate({3: "laptop_dañada", 6: "trabajo_extra"}, weeks=9)</code></pre><p>Una laptop dañada activa la barrera material/digital, crea una alerta, recomienda soporte TI y biblioteca, reduce horas disponibles y deja una recuperación gradual para la semana siguiente. Si luego aparece trabajo extra, se agrega la barrera de tiempo sin borrar la anterior.</p></section></main><footer>Copilot Becario · Manual generado para el paquete actual de modelos · <a href="../README.md">README</a></footer>
+</body></html>
